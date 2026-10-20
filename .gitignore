@@ -1,0 +1,12 @@
+# Archivos generados por ESP-IDF
+build/
+sdkconfig.old
+managed_components/
+
+# Configuración local de VS Code (rutas propias de cada PC)
+.vscode/
+
+# Archivos del IDE de Espressif (Eclipse)
+.project
+.cproject
+.settings/
