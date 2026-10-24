@@ -3,6 +3,8 @@
 #include "freertos/task.h"
 #include "esp_log.h"
 
+#include "bsp.h"
+
 static const char *TAG = "practica2";
 
 void app_main(void)

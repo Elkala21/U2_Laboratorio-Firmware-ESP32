@@ -58,17 +58,8 @@
 #define TIMG_ALARM_EN               (1UL << 10)
 
 /* --- DIVIDER field (bits 28 ... 13, 16 bits) --- */
-#define TIMG_DIVIDER_S              13
-#define TIMG_DIVIDER_V              0xFFFFUL                            /* mask before shifting */
-#define TIMG_DIVIDER_M              (TIMG_DIVIDER_V << TIMG_DIVIDER_S)  /* mask in register position */
-
-typedef enum {G0, G1} avail_timer_groups_e_t;
-typedef enum {T0, T1} avail_timer_inGroups_e_t;
-
-/*Inicio de estructura de configuración del timer (WIP)*/
-typedef struct {
-    uint16_t prescaler; //Revisar si va el prescaler para el timer.
-    uint16_t divider; //Confirmar tamaño del divider.
-    uint32_t timer_isr; //Revisar el tipo de dato que debería tener el puntero a función.
-} timer_config_t;
-#endif /* TIMER_REGS_H */
+#define TIMG_DIVIDER_SHIFT          13
+#define TIMG_DIVIDER_MASK           0xFFFFUL                            /* mask before shifting */
+#define TIMG_DIVIDER_VAL(X)         (((X) & TIMG_DIVIDER_MASK) << TIMG_DIVIDER_SHIFT)  /* mask in register position */
+/* TIMER_REGS_H */
+#endif 
