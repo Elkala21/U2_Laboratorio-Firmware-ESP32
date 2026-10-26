@@ -2,9 +2,10 @@
 #define HAL_GPIO_H
 
 #include <stdint.h>
+#include <stdbool.h>
 
 /* Internal pull resistor options (IO_MUX FUN_WPU / FUN_WPD)*/
-typedef enum {HG_PULL_NONE, HG_PULL_UP, HG_PULL_DOWN }hg_pull_t;
+typedef enum {HG_PULL_NONE, HG_PULL_UP, HG_PULL_DOWN }hal_gpio_pull_t;
 
 
 /* ========================================================================================================
@@ -26,7 +27,7 @@ void hal_gpio_select_func(uint8_t pin);
 void hal_gpio_set_input_enable(uint8_t pin, bool enable);
 
 /* Configures the internal pull resistor (FUN_WPU / FUN_WPD) */
-void hal_gpio_set_pull(uint8_t pin, hg_pull_t pull);
+void hal_gpio_set_pull(uint8_t pin, hal_gpio_pull_t pull);
 
 /* ------------------------------------------- GPIO_MATRIX ------------------------------------------------ */
 

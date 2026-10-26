@@ -8,19 +8,19 @@
  * TRM v4.6: Chapter 4.12.1 "GPIO Matrix Register Summary"
  *===============================================================================================*/
 #define GPIO_BASE                   0x3FF44000UL
-#define GPIO_BANK_STRIDE            0x0C        // Distance between bank 0 and bank 1 
+#define GPIO_BANK_STRIDE            0x0C        /* Distance between bank 0 and bank 1 */
+#define GPIO_IN_BANK_STRIDE         0x04
 
-/* --- Pins 0 ... 39 (one bit per pin: *_REG -> GPIO 0-31, *1_REG -> GPIO 32-39) --- */
+/* --- Pins 0 ... 39 (one bit per pin: *c = bank: 0 -> GPIO 0-31, *c = bank: 1 -> GPIO 32-39) --- */
 
-#define GPIO_OUT_REG(c)             (GPIO_BASE + ((c) * 0x0C) + 0x04)
-#define GPIO_OUT_W1TS_REG(c)        (GPIO_BASE + ((c) * 0x0C) + 0x08)
-#define GPIO_OUT_W1TC_REG(c)        (GPIO_BASE + ((c) * 0x0C) + 0x0C)
-#define GPIO_ENABLE_REG(c)          (GPIO_BASE + ((c) * 0x0C) + 0x20)
-#define GPIO_ENABLE_W1TS_REG(c)     (GPIO_BASE + ((c) * 0x0C) + 0x24)
-#define GPIO_ENABLE_W1TC_REG(c)     (GPIO_BASE + ((c) * 0x0C) + 0x28)
+#define GPIO_OUT_REG(c)             (GPIO_BASE + ((c) * GPIO_BANK_STRIDE) + 0x04)
+#define GPIO_OUT_W1TS_REG(c)        (GPIO_BASE + ((c) * GPIO_BANK_STRIDE) + 0x08)
+#define GPIO_OUT_W1TC_REG(c)        (GPIO_BASE + ((c) * GPIO_BANK_STRIDE) + 0x0C)
+#define GPIO_ENABLE_REG(c)          (GPIO_BASE + ((c) * GPIO_BANK_STRIDE) + 0x20)
+#define GPIO_ENABLE_W1TS_REG(c)     (GPIO_BASE + ((c) * GPIO_BANK_STRIDE) + 0x24)
+#define GPIO_ENABLE_W1TC_REG(c)     (GPIO_BASE + ((c) * GPIO_BANK_STRIDE) + 0x28)
 #define GPIO_STRAP_REG              (GPIO_BASE + 0x38)
-#define GPIO_IN_REG                 (GPIO_BASE + 0x3C)
-#define GPIO_IN1_REG                (GPIO_BASE + 0x40)
+#define GPIO_IN_REG(c)              (GPIO_BASE + ((c) * GPIO_IN_BANK_STRIDE) + 0x3C)
 
 /* --- Interrupt status --- */
 
@@ -95,7 +95,7 @@
 
 #define GPIO_FUNC_OUT_SEL_S         0
 #define GPIO_FUNC_OUT_SEL_M         (0x1FFUL << GPIO_FUNC_OUT_SEL_S) /* bits 8:0 */
-#define GPIO_FUNC_OUT_SEL_GPIO      0x100           /*  256: drive pin from GPIO_OUT / GPIO_ENABLE*/
+#define GPIO_FUNC_OUT_SEL_GPIO      0x100UL         /*  256: drive pin from GPIO_OUT / GPIO_ENABLE*/
 #define GPIO_FUNC_OUT_INV_SEL       (1UL << 9)
 #define GPIO_FUNC_OEN_SEL           (1UL << 10)
 #define GPIO_FUNC_OEN_INV_SEL       (1UL << 11)
@@ -118,7 +118,7 @@
 
 #define IO_MUX_MCU_SEL_S            12
 #define IO_MUX_MCU_SEL_M            (0x7UL << IO_MUX_MCU_SEL_S)     /* bits 14:12 */
-#define IO_MUX_MCU_SEL_GPIO         2
+#define IO_MUX_MCU_SEL_GPIO         2UL
 
 #define GPIO_PIN_COUNT              40
 
