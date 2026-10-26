@@ -8,6 +8,7 @@
  * TRM v4.6: Chapter 4.12.1 "GPIO Matrix Register Summary"
  *===============================================================================================*/
 #define GPIO_BASE                   0x3FF44000UL
+#define GPIO_BANK_STRIDE            0x0C        // Distance between bank 0 and bank 1 
 
 /* --- Pins 0 ... 39 (one bit per pin: *_REG -> GPIO 0-31, *1_REG -> GPIO 32-39) --- */
 

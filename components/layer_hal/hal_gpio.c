@@ -1,7 +1,7 @@
 #include <stdint.h>
 #include <stdbool.h>
-#include "include/hal_gpio.h"
-#include "regs/gpio_regs.h"
+#include "hal_gpio.h"
+#include "gpio_regs.h"
 
 static const uint32_t io_mux_reg[GPIO_PIN_COUNT] = {
     [0]  = IO_MUX_GPIO0_REG,    [1]  = IO_MUX_U0TXD_REG,    [2]  = IO_MUX_GPIO2_REG,    [3]  = IO_MUX_U0RXD_REG,
@@ -21,12 +21,18 @@ static inline uint32_t pin_mask(uint8_t pin){
     return 1UL << (pin & 31);
 }
 
-static inline uint32_t bank_reg(uint8_t pin, uint32_t reg_0_31, uint32_t reg_32_39){
-    if(pin < 32){
+/* Bank of the pin: pin / 32 -> 0 for GPIO0..31, 1 for GPIO32..39 (pin must be valid) */
+static inline uint8_t pin_bank(uint8_t pin){
+    return pin >> 5;
+}
 
-    }
-    
-    return reg_0_31;
+/* Read-modify-write of a pin's IO_MUX register; pin must be valid */
+static inline void io_mux_modify(uint8_t pin, uint32_t clear, uint32_t set){
+    uint32_t addr   = io_mux_reg[pin];  /* address of this pin's IO_MUX register (just a number) */
+    uint32_t v      = REG32(addr);      /* copy of the register's current content (1st hardware access) */  
+    v = v & ~clear;                     /* clear the 'clear' bits on the copy, register untouched */
+    v = v | set;                        /* set the 'set' bits on the copy */
+    REG32(addr)     = v;                /* write the copy back in a single access (2nd hardware access) */
 }
 
 bool hal_gpio_is_valid(uint8_t pin){
