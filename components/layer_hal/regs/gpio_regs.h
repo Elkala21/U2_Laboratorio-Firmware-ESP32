@@ -120,6 +120,8 @@
 #define IO_MUX_MCU_SEL_M            (0x7UL << IO_MUX_MCU_SEL_S)     /* bits 14:12 */
 #define IO_MUX_MCU_SEL_GPIO         2UL
 
+/* --------------------------------------- Others --------------------------------------------- */
 #define GPIO_PIN_COUNT              40
+#define GPIO_BANK_SIZE              32UL
 
 #endif
