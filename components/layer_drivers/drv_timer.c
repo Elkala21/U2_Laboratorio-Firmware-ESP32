@@ -1,7 +1,6 @@
 #include "timer_regs.h"
 #include "drv_timer.h"
 
-
 static timer_callback_t timer_callback_gt [2][2] ={
     {NULL, NULL}, //G0 = {T0, T1}
     {NULL, NULL}  //G1 = {T0, T1}
