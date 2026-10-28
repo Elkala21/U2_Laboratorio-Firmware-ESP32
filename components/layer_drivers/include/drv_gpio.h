@@ -3,7 +3,7 @@
 
 #include "fw_err.h"
 
-fw_err_t driv_gpio_config(uint32_t pin);
+fw_err_t drv_gpio_config(uint32_t pin);
 /*
 drv_gpio_config
 drv_gpio_write
