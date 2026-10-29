@@ -45,6 +45,10 @@ flowchart TB
         end
     end
  
+    subgraph COMMON["common · shared definitions"]
+        fw_err_h["fw_err.h"]
+    end
+ 
     subgraph HW["ESP32 hardware"]
         hw_gpio[("GPIO · IO_MUX<br/>0x3FF44000 · 0x3FF49000")]
         hw_timg[("TIMG0 · TIMG1<br/>0x3FF5F000 · 0x3FF60000")]
@@ -83,6 +87,11 @@ flowchart TB
     gpio_regs_h --> reg_access_h
     timer_regs_h --> reg_access_h
  
+    %% Common error codes (used in the public API of drivers and BSP)
+    drv_gpio_h --> fw_err_h
+    drv_timer_h --> fw_err_h
+    bsp_h --> fw_err_h
+ 
     %% Hardware access
     hal_gpio_c -. "REG32()" .-> hw_gpio
     hal_timer_c -. "REG32()" .-> hw_timg
@@ -91,7 +100,7 @@ flowchart TB
     classDef hdr fill:#fff4e0,stroke:#c98a1b,color:#1a1a1a
     classDef hw fill:#eeeeee,stroke:#666666,color:#1a1a1a
     class main_c,app_c,bsp_c,drv_gpio_c,drv_timer_c,hal_gpio_c,hal_timer_c src
-    class app_h,bsp_h,drv_gpio_h,drv_timer_h,hal_gpio_h,hal_timer_h,gpio_regs_h,timer_regs_h,reg_access_h hdr
+    class app_h,bsp_h,drv_gpio_h,drv_timer_h,hal_gpio_h,hal_timer_h,gpio_regs_h,timer_regs_h,reg_access_h,fw_err_h hdr
     class hw_gpio,hw_timg hw
 ```
  
@@ -106,6 +115,7 @@ Blue boxes are source files (`.c`), orange boxes are headers (`.h`).
 | **Drivers** (`layer_drivers`) | General API: validates parameters, returns error codes, decides the order of operations | No |
 | **HAL** (`layer_hal`) | One small function per hardware operation, no validation | Yes, only here |
 | **regs/** (inside HAL) | Base addresses, offsets, bits and masks from the ESP32 TRM v4.6 | — |
+| **common** | Project-wide error type and codes (`fw_err_t`), currently backed by ESP-IDF's `esp_err_t` | No |
  
 Rule of thumb: *how it is done on this chip* goes in the HAL; *whether it should be done* goes in
 the driver.
@@ -113,14 +123,17 @@ the driver.
 ### Dependency rules (enforced by CMake)
  
 ```
-main  ──REQUIRES──▶  layer_bsp, layer_drivers
-layer_bsp      ──PRIV_REQUIRES──▶  layer_drivers
-layer_drivers  ──PRIV_REQUIRES──▶  layer_hal
+main           ──REQUIRES──▶  layer_bsp, layer_drivers, common
+layer_bsp      ──REQUIRES──▶  common          ──PRIV_REQUIRES──▶  layer_drivers
+layer_drivers  ──REQUIRES──▶  common          ──PRIV_REQUIRES──▶  layer_hal
 layer_hal      ──PRIV_INCLUDE_DIRS──▶  regs/
+common         ──REQUIRES──▶  esp_common (ESP-IDF)
 ```
  
 Because of `PRIV_REQUIRES` and `PRIV_INCLUDE_DIRS`, a file can only include headers from the layer
 directly below it. Including `gpio_regs.h` or `hal_gpio.h` from the application fails at compile time.
+`common` is required publicly (`REQUIRES`) because `fw_err_t` appears in the public headers of the
+drivers and the BSP.
  
 ---
  
@@ -130,6 +143,8 @@ directly below it. Including `gpio_regs.h` or `hal_gpio.h` from the application 
 .
 ├── CMakeLists.txt
 ├── components/
+│   ├── common/
+│   │   └── include/        fw_err.h
 │   ├── layer_hal/
 │   │   ├── hal_gpio.c
 │   │   ├── hal_timer.c
@@ -164,4 +179,3 @@ idf.py build flash monitor
 ## References
  
 - Espressif Systems, *ESP32 Technical Reference Manual*, v4.6 — Ch. 4 (IO_MUX and GPIO Matrix), Ch. 18 (Timer Group)
- 
