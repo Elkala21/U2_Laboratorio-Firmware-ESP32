@@ -22,7 +22,7 @@ static const uint32_t io_mux_reg[GPIO_PIN_COUNT] = {
  * ======================================================================================================== */
 
 /* Bit of the pin inside its 32-bit register */
-static inline uint32_t pin_mask(uint8_t pin){
+static inline uint32_t pin_mask(uint8_t pin){// add inline
     return 1UL << (pin % GPIO_BANK_SIZE);
 }
 

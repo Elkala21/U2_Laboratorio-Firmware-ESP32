@@ -20,6 +20,13 @@ bool hal_gpio_is_output_capable(uint8_t pin);
 
 /* --------------------------------------------- IO_MUX --------------------------------------------------- */
 
+/**
+ * brief: 
+ * param:
+ * doxygen
+ * 
+ */
+
 /* Selects the GPIO function in IO_MUX (MCU_SEL = 2) */
 void hal_gpio_select_func(uint8_t pin);
 
