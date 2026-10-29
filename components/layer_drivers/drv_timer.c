@@ -1,88 +1,27 @@
-#include "timer_regs.h"
+
 #include "drv_timer.h"
 
-static timer_callback_t timer_callback_gt [2][2] ={
-    {NULL, NULL}, //G0 = {T0, T1}
-    {NULL, NULL}  //G1 = {T0, T1}
-};
+#define TICK_US_DIVIDER 80
 
-void drv_timer00_isr(void*arg){
-    /*Ejecución pre-callback*/
+typedef enum {TIMER1, TIMER2, TIMER3, TIMER4}hal_avail_timers_e;
+typedef enum {DISABLED, ENABLED}hal_autoreload_e;
 
-    /*Callback*/
-    if(timer_callback_gt[0][0] != NULL) //Si existe un puntero a función, mandarlo llamar.
-        timer_callback_gt [0][0]();
-    
-    /*Ejecución post-callback*/
-}
+intr_handle_t timer_free_handles[4];
 
-void drv_timer01_isr(void*arg){
-    /*Puntero a función específicado por el usuario desde app main*/
-    if(timer_callback_gt[0][1] != NULL) //Si existe un puntero a función, mandarlo llamar.
-        timer_callback_gt [0][1]();
-}
+void configure_timer(hal_avail_timers_e selected_timer, uint64_t time_us, hal_autoreload_e autoreload_enable, timer_callback_t app_main_int_func){
+    //Timer 1 y 2 de la app son de G0, Timer 3 y 4 son de G1
+    avail_timer_groups_e_t group = ((selected_timer == TIMER1 || selected_timer == TIMER2)? G0 : G1); 
 
-void drv_timer10_isr(void*arg){
-    /*Puntero a función específicado por el usuario desde app main*/
-    if(timer_callback_gt[1][0] != NULL) //Si existe un puntero a función, mandarlo llamar.
-        timer_callback_gt [1][0]();
-}
+    //Timer 1 y 3 de la app serian el timer0 de sus respectivos grupos
+    avail_timer_inGroups_e_t timer = ((selected_timer == TIMER1 || selected_timer == TIMER3)? T0 : T1); 
 
-void drv_timer11_isr(void*arg){
-    /*Puntero a función específicado por el usuario desde app main*/
-    if(timer_callback_gt[1][1] != NULL) //Si existe un puntero a función, mandarlo llamar.
-        timer_callback_gt [1][1]();
-}
-
-void drv_timer_alarm_enable(avail_timer_groups_e_t timer_group, avail_timer_inGroups_e_t timer_sel){
-    REG32(TIMG_CONFIG_REG (timer_group, timer_sel)) |= TIMG_ALARM_EN;
-}
-
-void drv_timer_start(avail_timer_groups_e_t timer_group, avail_timer_inGroups_e_t timer_sel){
-    drv_timer_alarm_enable(timer_group, timer_sel);
-    REG32(TIMG_CONFIG_REG(timer_group, timer_sel)) |= TIMG_EN; //Habilitar el timer seleccionado del grupo.
-}
-
-void drv_timer_stop(avail_timer_groups_e_t timer_group, avail_timer_inGroups_e_t timer_sel){
-    REG32(TIMG_CONFIG_REG(timer_group, timer_sel)) &= ~TIMG_EN; //Detener timer seleccionado del grupo.
-}
-
-void drv_timer_clr_int(avail_timer_groups_e_t timer_group, avail_timer_inGroups_e_t timer_sel){
-    REG32(TIMG_INT_CLR_REG(timer_group)) = TIMG_INT_T_BIT(timer_sel); //Limpiar interrupción del timer.
-}
-
-void drv_timer_restart(avail_timer_groups_e_t timer_group, avail_timer_inGroups_e_t timer_sel, uint64_t time_toLoad){
-    drv_timer_stop(timer_group, timer_sel); //Detener el timer del grupo antes de cargar valor.
-    REG32(TIMG_LOADLO_REG (timer_group, timer_sel)) = (uint32_t)(time_toLoad & 0xFFFFFFFF); //Máscara para extraer los 32 LSB de uint64_t.
-    REG32(TIMG_LOADHI_REG (timer_group, timer_sel)) = (uint32_t)(time_toLoad >> 32); //Corrimiento para extraer los 32 MSB de uint64_t.
-    REG32(TIMG_LOAD_REG   (timer_group, timer_sel)) = 1; //Cargar HI-LO REG
-    drv_timer_clr_int(timer_group, timer_sel); //Limpiar interrupción del timer.
-    drv_timer_start(timer_group, timer_sel);
-}
-
-void drv_timer_reset(avail_timer_groups_e_t timer_group, avail_timer_inGroups_e_t timer_sel, uint64_t time_toLoad){
-    drv_timer_stop(timer_group, timer_sel); //Detener el timer del grupo antes de cargar valor.
-    REG32(TIMG_LOADLO_REG (timer_group, timer_sel)) = (uint32_t)(time_toLoad & 0xFFFFFFFF); //Máscara para extraer los 32 LSB de uint64_t.
-    REG32(TIMG_LOADHI_REG (timer_group, timer_sel)) = (uint32_t)(time_toLoad >> 32); //Corrimiento para extraer los 32 MSB de uint64_t.
-    REG32(TIMG_LOAD_REG   (timer_group, timer_sel)) = 1; //Cargar HI-LO REG
-    drv_timer_clr_int(timer_group, timer_sel); //Limpiar interrupción del timer.
-    drv_timer_alarm_enable(timer_group, timer_sel);
-}
-
-void drv_timer_configure(avail_timer_groups_e_t timer_group, avail_timer_inGroups_e_t timer_sel, timer_config_t config_struct){
-    REG32(TIMG_CONFIG_REG (timer_group, timer_sel))&= ~TIMG_EN; //Detener el timer del grupo antes de cargar valor.
-    REG32(TIMG_LOADLO_REG (timer_group, timer_sel)) = (uint32_t)(config_struct.timer_ticks & 0xFFFFFFFF); //Máscara para extraer los 32 LSB de uint64_t.
-    REG32(TIMG_LOADHI_REG (timer_group, timer_sel)) = (uint32_t)(config_struct.timer_ticks >> 32); //Corrimiento para extraer los 32 MSB de uint64_t.
-    REG32(TIMG_LOAD_REG   (timer_group, timer_sel)) = 1; //Cargar HI-LO REG
-    drv_timer_clr_int(timer_group, timer_sel); //Limpiar interrupción del timer.
-    REG32(TIMG_CONFIG_REG (timer_group, timer_sel))|= TIMG_DIVIDER_VAL(config_struct.divider); //CREAR UNA LIMPIEZA PREVIA DE LOS BITS EN PRESCALER (Creo que no se requiere, ya se hace aqui)
-
-    //Arreglo de los timers disponibles para ISRs
-    intr_handler_t selected_timer_isr[2][2] ={
-        {drv_timer00_isr, drv_timer01_isr},
-        {drv_timer10_isr, drv_timer11_isr}
+    //
+    timer_config_t config_struct ={
+        .timer_ticks = time_us,
+        .autoreload = autoreload_enable,
+        .divider = TICK_US_DIVIDER,
+        .callback_func = app_main_int_func,
+        .free_handle = &timer_free_handles[selected_timer]
     };
-
-    //Reservar el puntero a la función de interrupción del timer correspondiente al grupo y timer seleccionados.
-    esp_intr_alloc(config_struct.intr_source, ESP_INTR_FLAG_IRAM, selected_timer_isr[timer_group][timer_sel], NULL, config_struct.free_handle);
+    drv_timer_configure(group, timer, config_struct);
 }
