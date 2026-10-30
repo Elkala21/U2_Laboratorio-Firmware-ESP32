@@ -1,5 +1,22 @@
-
 #include "drv_timer.h"
+
+/*
+TO-DO LIST:
+
+URG|IMP
+- Resolver problema de "Timer Time Recall" para las funciones de reset() y restart()
+
+URG|NIMP
+- N/A
+
+NURG|IMP
+- Añadir validación de selección de opciones del usuario.
+- Añadir retorno de errores y revisión parámetros.
+- Formato doxygen.
+
+NURG|NIMP
+- N/A
+*/
 
 #define TICK_US_DIVIDER 80
 
@@ -25,7 +42,7 @@ void drv_configure_timer(hal_avail_timers_e selected_timer, uint64_t time_us, ha
     timer_config_t config_struct ={
         .timer_ticks = time_us,
         .autoreload = autoreload_enable,
-        .divider = TICK_US_DIVIDER,
+        .divider = TICK_US_DIVIDER, //Escala de us por defecto
         .callback_func = app_main_int_func,
         .free_handle = &timer_free_handles[selected_timer]
     };

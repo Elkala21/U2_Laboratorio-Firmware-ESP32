@@ -1,5 +1,25 @@
 #include "hal_timer.h"
 
+/*
+TO-DO LIST:
+URG|IMP
+- Bloquear un timer para conteo general.
+- Añadir función de delay/wait.
+- Reconfigurar el como se reservan las ISRs de los timers para evitar uso del timer general. 
+(Solo permitir al usuario configurar este timer directamente con HAL)
+
+URG|NIMP
+- N/A
+
+NURG|IMP
+- Añadir validación de selección de opciones del usuario.
+- Añadir retorno de errores y revisión parámetros.
+- Formato doxygen.
+
+NURG|NIMP
+- N/A
+*/
+
 static timer_callback_t timer_callback_gt [2][2] ={
     {NULL, NULL}, //G0 = {T0, T1}
     {NULL, NULL}  //G1 = {T0, T1}
