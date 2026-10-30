@@ -8,12 +8,18 @@ typedef enum {DISABLED, ENABLED}hal_autoreload_e;
 
 intr_handle_t timer_free_handles[4];
 
-void configure_timer(hal_avail_timers_e selected_timer, uint64_t time_us, hal_autoreload_e autoreload_enable, timer_callback_t app_main_int_func){
+static void sort_group_and_timer(hal_avail_timers_e selected_timer, avail_timer_groups_e_t*group_ptr_out, avail_timer_inGroups_e_t* timer_ptr_out){
     //Timer 1 y 2 de la app son de G0, Timer 3 y 4 son de G1
-    avail_timer_groups_e_t group = ((selected_timer == TIMER1 || selected_timer == TIMER2)? G0 : G1); 
-
+    *group_ptr_out = ((selected_timer == TIMER1 || selected_timer == TIMER2)? G0 : G1);
     //Timer 1 y 3 de la app serian el timer0 de sus respectivos grupos
-    avail_timer_inGroups_e_t timer = ((selected_timer == TIMER1 || selected_timer == TIMER3)? T0 : T1); 
+    *timer_ptr_out = ((selected_timer == TIMER1 || selected_timer == TIMER3)? T0 : T1);
+}
+
+void drv_configure_timer(hal_avail_timers_e selected_timer, uint64_t time_us, hal_autoreload_e autoreload_enable, timer_callback_t app_main_int_func){
+    
+    avail_timer_groups_e_t group = 0;
+    avail_timer_inGroups_e_t timer = 0; 
+    sort_group_and_timer (selected_timer, &group, &timer);
 
     //
     timer_config_t config_struct ={
@@ -25,3 +31,12 @@ void configure_timer(hal_avail_timers_e selected_timer, uint64_t time_us, hal_au
     };
     hal_timer_configure(group, timer, config_struct);
 }
+
+void drv_stop_timer(hal_avail_timers_e selected_timer){
+    avail_timer_groups_e_t group = 0;
+    avail_timer_inGroups_e_t timer = 0; 
+    sort_group_and_timer (selected_timer, &group, &timer);
+
+    hal_timer_stop(group, timer);
+}
+
