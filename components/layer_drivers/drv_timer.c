@@ -40,3 +40,20 @@ void drv_stop_timer(hal_avail_timers_e selected_timer){
     hal_timer_stop(group, timer);
 }
 
+void drv_start_timer(hal_avail_timers_e selected_timer){
+    avail_timer_groups_e_t group = 0;
+    avail_timer_inGroups_e_t timer = 0; 
+    sort_group_and_timer (selected_timer, &group, &timer);
+
+    hal_timer_start(group, timer);
+}
+
+void drv_restart_timer(hal_avail_timers_e selected_timer){
+    avail_timer_groups_e_t group = 0;
+    avail_timer_inGroups_e_t timer = 0; 
+    sort_group_and_timer (selected_timer, &group, &timer);
+
+    uint64_t restart_time = NaN;
+
+    hal_timer_restart(group, timer, restart_time);
+}
