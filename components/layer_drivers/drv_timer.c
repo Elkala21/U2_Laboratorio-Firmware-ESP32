@@ -53,7 +53,17 @@ void drv_restart_timer(hal_avail_timers_e selected_timer){
     avail_timer_inGroups_e_t timer = 0; 
     sort_group_and_timer (selected_timer, &group, &timer);
 
-    uint64_t restart_time = NaN;
+    uint64_t restart_time = NaN ;// = 0; //Define where to save and recall times from.
 
     hal_timer_restart(group, timer, restart_time);
+}
+
+void drv_reset_timer(hal_avail_timers_e sel_timer){
+    avail_timer_groups_e_t group = 0;
+    avail_timer_inGroups_e_t timer = 0; 
+    sort_group_and_timer (sel_timer, &group, &timer);
+
+    uint64_t reset_time = NaN; // = 0; //Define where to save and recall timer times from.
+
+    hal_timer_reset(group, timer, reset_time);
 }
