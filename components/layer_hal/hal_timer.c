@@ -105,3 +105,21 @@ void hal_timer_configure(avail_timer_groups_e_t timer_group, avail_timer_inGroup
     //Reservar el puntero a la función de interrupción del timer correspondiente al grupo y timer seleccionados.
     esp_intr_alloc(config_struct.intr_source, ESP_INTR_FLAG_IRAM, selected_timer_isr[timer_group][timer_sel], NULL, config_struct.free_handle);
 }
+
+
+
+void hal_timer_get_time_us(avail_timer_groups_e_t timer_group, avail_timer_inGroups_e_t timer_sel, uint64_t*time_read_ptr_out){
+    REG32(TIMG_UPDATE_REG(timer_group, timer_sel)) = 1;
+    uint32_t MSB = (REG32(TIMG_HI_REG(timer_group, timer_sel)));
+    uint32_t LSB = (REG32(TIMG_LO_REG(timer_group, timer_sel)));
+    
+    *time_read_ptr_out =  (((uint64_t)MSB<<32)|((uint64_t)LSB));
+}
+
+void hal_master_timer_get_time_us(uint64_t*time_read_ptr_out){
+    hal_timer_get_time_us(G0, T1, time_read_ptr_out);
+}
+
+void hal_delay_ticks(uint64_t delay_ticks){
+    
+}
