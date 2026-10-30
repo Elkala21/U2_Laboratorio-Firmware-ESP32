@@ -23,5 +23,5 @@ void configure_timer(hal_avail_timers_e selected_timer, uint64_t time_us, hal_au
         .callback_func = app_main_int_func,
         .free_handle = &timer_free_handles[selected_timer]
     };
-    drv_timer_configure(group, timer, config_struct);
+    hal_timer_configure(group, timer, config_struct);
 }

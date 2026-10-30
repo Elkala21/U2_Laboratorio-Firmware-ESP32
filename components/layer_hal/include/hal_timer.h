@@ -19,16 +19,16 @@ typedef struct {
     intr_handle_t *free_handle;
 } timer_config_t;
 
-void drv_timer_alarm_enable(avail_timer_groups_e_t, avail_timer_inGroups_e_t);
+void hal_timer_alarm_enable(avail_timer_groups_e_t, avail_timer_inGroups_e_t);
 
-void drv_timer_start(avail_timer_groups_e_t, avail_timer_inGroups_e_t);
+void hal_timer_start(avail_timer_groups_e_t, avail_timer_inGroups_e_t);
 
-void drv_timer_stop(avail_timer_groups_e_t, avail_timer_inGroups_e_t);
+void hal_timer_stop(avail_timer_groups_e_t, avail_timer_inGroups_e_t);
 
-void drv_timer_clr_int(avail_timer_groups_e_t, avail_timer_inGroups_e_t);
+void hal_timer_clr_int(avail_timer_groups_e_t, avail_timer_inGroups_e_t);
 
-void drv_timer_restart(avail_timer_groups_e_t, avail_timer_inGroups_e_t, uint64_t);
+void hal_timer_restart(avail_timer_groups_e_t, avail_timer_inGroups_e_t, uint64_t);
 
-void drv_timer_reset(avail_timer_groups_e_t, avail_timer_inGroups_e_t, uint64_t);
+void hal_timer_reset(avail_timer_groups_e_t, avail_timer_inGroups_e_t, uint64_t);
 
-void drv_timer_configure(avail_timer_groups_e_t, avail_timer_inGroups_e_t, timer_config_t);
+void hal_timer_configure(avail_timer_groups_e_t, avail_timer_inGroups_e_t, timer_config_t);
