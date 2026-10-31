@@ -72,20 +72,24 @@ void hal_gpio_set_pull(uint8_t pin, hal_gpio_pull_t pull){
     uint32_t set = 0;
 
     switch (pull){
-        case HG_PULL_NONE:
+        case HAL_GPIO_PULL_NONE:
             set = 0;
             break;
 
-        case HG_PULL_UP:
+        case HAL_GPIO_PULL_UP:
             set = IO_MUX_FUN_WPU;
             break;
 
-        case HG_PULL_DOWN:
+        case HAL_GPIO_PULL_DOWN:
             set = IO_MUX_FUN_WPD;
             break;
     }
 
     io_mux_modify(pin, (IO_MUX_FUN_WPD | IO_MUX_FUN_WPU), set);    /* both cleared so pulls never mix */
+}
+
+bool hal_gpio_has_pulls(uint8_t pin){
+    return pin < GPIO_FIRST_INPUT_ONLY_PIN;
 }
 
 /* ------------------------------------------- GPIO_MATRIX ------------------------------------------------
@@ -105,29 +109,41 @@ void hal_gpio_route_simple_output(uint8_t pin){
 }
 
 void hal_gpio_set_output_enable(uint8_t pin, bool enable){
-    if(enable)  REG32(GPIO_ENABLE_W1TS_REG(pin_bank(pin))) = pin_mask(pin);
-    else        REG32(GPIO_ENABLE_W1TC_REG(pin_bank(pin))) = pin_mask(pin);
+    if (enable) {
+        REG32(GPIO_ENABLE_W1TS_REG(pin_bank(pin))) = pin_mask(pin);
+        return;
+    }
+
+    REG32(GPIO_ENABLE_W1TC_REG(pin_bank(pin))) = pin_mask(pin);
 }
 
 /* ----------------------------------------------- DATA --------------------------------------------------- */
 
 void hal_gpio_set_level(uint8_t pin, bool level){
-    if(level)   REG32(GPIO_OUT_W1TS_REG(pin_bank(pin))) = pin_mask(pin);
-    else        REG32(GPIO_OUT_W1TC_REG(pin_bank(pin))) = pin_mask(pin);
+    if (level) {
+        REG32(GPIO_OUT_W1TS_REG(pin_bank(pin))) = pin_mask(pin);
+        return;
+    }
+
+    REG32(GPIO_OUT_W1TC_REG(pin_bank(pin))) = pin_mask(pin);
 }
 
 bool hal_gpio_get_level(uint8_t pin){
     uint32_t v = REG32(GPIO_IN_REG(pin_bank(pin)));
-    if((pin_mask(pin) & v) == 0){               /* keep only this pin's bit out of the whole bank */
+
+    if ((pin_mask(pin) & v) == 0) {               /* keep only this pin's bit out of the whole bank */
         return false;
     }
+
     return true;
 }
 
 bool hal_gpio_get_output_level(uint8_t pin){
     uint32_t v = REG32(GPIO_OUT_REG(pin_bank(pin)));
-    if((pin_mask(pin) & v) == 0){               /* keep only this pin's bit out of the whole bank */
+
+    if ((pin_mask(pin) & v) == 0) {               /* keep only this pin's bit out of the whole bank */
         return false;
     }
+
     return true;
 }

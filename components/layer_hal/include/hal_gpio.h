@@ -5,7 +5,7 @@
 #include <stdbool.h>
 
 /* Internal pull resistor options (IO_MUX FUN_WPU / FUN_WPD)*/
-typedef enum {HG_PULL_NONE, HG_PULL_UP, HG_PULL_DOWN }hal_gpio_pull_t;
+typedef enum {HAL_GPIO_PULL_NONE, HAL_GPIO_PULL_UP, HAL_GPIO_PULL_DOWN }hal_gpio_pull_t;
 
 
 /* ========================================================================================================
@@ -17,6 +17,9 @@ bool hal_gpio_is_valid(uint8_t pin);
 
 /* True if the pin has an output driver (false for GPIO 34..39) */
 bool hal_gpio_is_output_capable(uint8_t pin);
+
+/* True if the pin has internal pull-up/pull-down resistors (false for GPIO34 - GPIO39) */
+bool hal_gpio_has_pulls(uint8_t pin);
 
 /* --------------------------------------------- IO_MUX --------------------------------------------------- */
 
