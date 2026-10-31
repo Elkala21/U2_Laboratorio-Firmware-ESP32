@@ -57,6 +57,11 @@
 #define TIMG_LEVEL_INT_EN           (1UL << 11)
 #define TIMG_ALARM_EN               (1UL << 10)
 
+/* --- Bit operations for WDT --- */
+#define DISABLE_WDT_WRITE_PROTECTION    0x50D83AA1 //Valor específico en el ESP32-TRM para deshabilitar la proteccion de escritura en WDT
+#define ENABLE_WDT_WRITE_PROTECTION     0x00000000 //Cualquier valor distinto al de disable_wdt funciona.
+#define FEED_UNPROTECTED_WDT            0x00000001 //Cualquier valor que se le escriba alimenta al WDT.
+
 /* --- DIVIDER field (bits 28 ... 13, 16 bits) --- */
 #define TIMG_DIVIDER_SHIFT          13
 #define TIMG_DIVIDER_MASK           0xFFFFUL                            /* mask before shifting */
