@@ -25,6 +25,17 @@ static timer_callback_t timer_callback_gt [2][2] ={
     {NULL, NULL}  //G1 = {T0, T1}
 };
 
+static void hal_wdt_feed(avail_timer_groups_e_t timer_group){
+    //Permitir escritura de WDT.
+    REG32(TIMG_WDTWPROTECT_REG(timer_group)) = DISABLE_WDT_WRITE_PROTECTION;
+
+    //Recargar WDT
+    REG32(TIMG_WDTFEED_REG(timer_group)) = FEED_UNPROTECTED_WDT;
+
+    //Bloquear escritura de WDT.
+    REG32(TIMG_WDTWPROTECT_REG(timer_group)) = ENABLE_WDT_WRITE_PROTECTION;
+}
+
 void hal_timer00_isr(void*arg){
     /*Ejecución pre-callback*/
 
