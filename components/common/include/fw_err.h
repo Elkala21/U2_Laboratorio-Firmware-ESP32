@@ -3,7 +3,7 @@
 
 #include "esp_err.h"
 
-/* Project-wide error type; backed by ESP'IDF for now, swappable from this file only */
+/* Project-wide error type; backed by ESP-IDF for now, swappable from this file only */
 typedef esp_err_t fw_err_t; 
 
 #define FW_OK                   ESP_OK

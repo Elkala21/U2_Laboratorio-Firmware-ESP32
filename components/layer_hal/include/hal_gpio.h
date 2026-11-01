@@ -57,4 +57,4 @@ bool hal_gpio_get_level(uint8_t pin);
 /* Reads the level the pin is being driven to (GPIO_OUT / GPIO_OUT1) */
 bool hal_gpio_get_output_level(uint8_t pin);
 
-#endif
+#endif /* HAL_GPIO_H */

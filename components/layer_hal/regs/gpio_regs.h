@@ -4,9 +4,10 @@
 #include "reg_access.h"
 
 /*===============================================================================================
- * GPIO peripherial
+ * GPIO peripheral
  * TRM v4.6: Chapter 4.12.1 "GPIO Matrix Register Summary"
  *===============================================================================================*/
+
 #define GPIO_BASE                   0x3FF44000UL
 #define GPIO_BANK_STRIDE            0x0C        /* Distance between bank 0 and bank 1 */
 #define GPIO_IN_BANK_STRIDE         0x04        /* Distance between bank 0 and bank 1 in the register GPIO_IN_REG*/
@@ -90,7 +91,7 @@
 #define IO_MUX_GPIO24_REG           (IO_MUX_BASE + 0x90)
 
 /*===============================================================================================
- * TRM v4.6: Chapter 4.32 "GPIO_FUNCn_OUT_SEL_CFG_REG"
+ * TRM v4.6: Register 4.32 "GPIO_FUNCn_OUT_SEL_CFG_REG"
  *===============================================================================================*/
 
 #define GPIO_FUNC_OUT_SEL_S         0
@@ -107,7 +108,7 @@
 #define GPIO_FIRST_INPUT_ONLY_PIN   34              /* GPIO34 ... 39 Have no output driver nor pulls */
 
 /*===============================================================================================
- * TRM v4.6: Chapter 4.34 "IO_MUX_x_REG fields"
+ * TRM v4.6: Register 4.34 "IO_MUX_x_REG fields"
  *===============================================================================================*/
 #define IO_MUX_FUN_WPD              (1UL << 7)      /* pull-down enable */
 #define IO_MUX_FUN_WPU              (1UL << 8)      /* pull-up enable   */
@@ -124,4 +125,4 @@
 #define GPIO_PIN_COUNT              40
 #define GPIO_BANK_SIZE              32UL
 
-#endif
+#endif /* GPIO_REGS_H */

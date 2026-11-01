@@ -27,13 +27,13 @@ typedef struct {
 /* Configures a pin as an output or input. Must be called before any other function on that pin. */
 fw_err_t drv_gpio_config(uint8_t pin, const drv_gpio_config_t *config);
 
-/* Drives an output pin high (true) or low (false) */
+/* Drives an output pin high (true) or low (false); electrical level, no active-low inversion */
 fw_err_t drv_gpio_write(uint8_t pin, bool level);
 
-/* Reads the real level of a pin into *level */
+/* Level of the pin into *level: real level for inputs, driven level for outputs */
 fw_err_t drv_gpio_read(uint8_t pin, bool *level);
 
 /* Inverts the current level of an output pin */
 fw_err_t drv_gpio_toggle(uint8_t pin);
 
-#endif
+#endif /* DRV_GPIO_H */
