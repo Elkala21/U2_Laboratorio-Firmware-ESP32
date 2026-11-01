@@ -53,15 +53,15 @@ fw_err_t drv_gpio_config(uint8_t pin, const drv_gpio_config_t *config)
         return FW_ERR_INVALID_ARG;
     }
 
-    if ((config->mode >= DRV_GPIO_MODE_COUNT) || (config->pull >= DRV_GPIO_PULL_COUNT)) {
+    if (((unsigned)config->mode >= DRV_GPIO_MODE_COUNT) || ((unsigned)config->pull >= DRV_GPIO_PULL_COUNT)) {
         return FW_ERR_INVALID_ARG;
     }
 
-    if (((unsigned)config->mode == DRV_GPIO_OUTPUT) && (hal_gpio_is_output_capable(pin) == false)) {
+    if ((config->mode == DRV_GPIO_OUTPUT) && (hal_gpio_is_output_capable(pin) == false)) {
         return FW_ERR_NOT_SUPPORTED;
     }
 
-    if (((unsigned)config->pull != DRV_GPIO_PULL_NONE) && (hal_gpio_has_pulls(pin) == false)) {
+    if ((config->pull != DRV_GPIO_PULL_NONE) && (hal_gpio_has_pulls(pin) == false)) {
         return FW_ERR_NOT_SUPPORTED;
     }
 
