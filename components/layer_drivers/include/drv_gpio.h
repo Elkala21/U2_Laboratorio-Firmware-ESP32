@@ -33,7 +33,7 @@ fw_err_t drv_gpio_write(uint8_t pin, bool level);
 /* Reads the real level of a pin into *level */
 fw_err_t drv_gpio_read(uint8_t pin, bool *level);
 
-/* Inverts the current level of an output level */
+/* Inverts the current level of an output pin */
 fw_err_t drv_gpio_toggle(uint8_t pin);
 
 #endif

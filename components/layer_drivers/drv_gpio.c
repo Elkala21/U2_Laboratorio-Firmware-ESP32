@@ -1,5 +1,8 @@
 #include "drv_gpio.h"
 #include "hal_gpio.h"
+#include <stddef.h>
+#include <stdbool.h>
+#include <stdint.h>
 
 /* ========================================================================================================
  * ----------------------------------------------- Helpers ------------------------------------------------
@@ -54,11 +57,11 @@ fw_err_t drv_gpio_config(uint8_t pin, const drv_gpio_config_t *config)
         return FW_ERR_INVALID_ARG;
     }
 
-    if ((config->mode == DRV_GPIO_OUTPUT) && !hal_gpio_is_output_capable(pin)) {
+    if ((config->mode == DRV_GPIO_OUTPUT) && (hal_gpio_is_output_capable(pin) == false)) {
         return FW_ERR_NOT_SUPPORTED;
     }
 
-    if ((config->pull != DRV_GPIO_PULL_NONE) && !hal_gpio_has_pulls(pin)) {
+    if ((config->pull != DRV_GPIO_PULL_NONE) && (hal_gpio_is_output_capable(pin) == false)) {
         return FW_ERR_NOT_SUPPORTED;
     }
 
@@ -91,7 +94,7 @@ fw_err_t drv_gpio_write(uint8_t pin, bool level)
 
     fw_err_t err = write_validation(pin);
 
-    if (err != FW_OK){
+    if (err != FW_OK) {
         return err;
     }
 
@@ -106,23 +109,23 @@ fw_err_t drv_gpio_read(uint8_t pin, bool *level)
 {
     /* =============================================== Guard Clauses ========================================== */
 
-    if (level == NULL){
+    if (level == NULL) {
         return FW_ERR_INVALID_ARG;
     }
 
-    if (!hal_gpio_is_valid(pin)) {
+    if (hal_gpio_is_valid(pin) == false) {
         return FW_ERR_INVALID_ARG;
     }
 
-    bool outputState = hal_gpio_is_output_enabled(pin);
+    bool output_state = hal_gpio_is_output_enabled(pin);
 
-    if ((hal_gpio_is_input_enabled(pin) == false) && (outputState == false)) {
+    if ((hal_gpio_is_input_enabled(pin) == false) && (output_state == false)) {
         return FW_ERR_INVALID_STATE;
     }
 
-    /* ================================================ Write in pin ========================================== */
+    /* ================================================= Read pin ============================================ */
 
-    if (outputState == true) {
+    if (output_state == true) {
         *level = hal_gpio_get_output_level(pin);
         return FW_OK;
     }
@@ -132,16 +135,17 @@ fw_err_t drv_gpio_read(uint8_t pin, bool *level)
     return FW_OK;
 }
 
-fw_err_t drv_gpio_toggle(uint8_t pin){
+fw_err_t drv_gpio_toggle(uint8_t pin)
+{
     /* =============================================== Guard Clauses ========================================== */
 
     fw_err_t err = write_validation(pin);
 
-    if (err != FW_OK){
+    if (err != FW_OK) {
         return err;
     }
 
-    /* ================================================ Write in pin ========================================== */
+    /* ================================================= Toggle pin ============================================ */
 
     bool level = hal_gpio_get_output_level(pin);
 

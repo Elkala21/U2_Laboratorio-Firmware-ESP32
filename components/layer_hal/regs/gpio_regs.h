@@ -9,7 +9,7 @@
  *===============================================================================================*/
 #define GPIO_BASE                   0x3FF44000UL
 #define GPIO_BANK_STRIDE            0x0C        /* Distance between bank 0 and bank 1 */
-#define GPIO_IN_BANK_STRIDE         0x04
+#define GPIO_IN_BANK_STRIDE         0x04        /* Distance between bank 0 and bank 1 in the register GPIO_IN_REG*/
 
 /* --- Pins 0 ... 39 (one bit per pin: *c = bank: 0 -> GPIO 0-31, *c = bank: 1 -> GPIO 32-39) --- */
 

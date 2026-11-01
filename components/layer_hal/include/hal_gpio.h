@@ -45,6 +45,7 @@ void hal_gpio_set_output_enable(uint8_t pin, bool enable);
 
 /* True if the pin's output driver is enabled (reads GPIO_ENABLE / GPIO_ENABLE1) */
 bool hal_gpio_is_output_enabled(uint8_t pin);
+
 /* ----------------------------------------------- DATA --------------------------------------------------- */
 
 /* Drives the pin high or low (GPIO_OUT[1]_W1TS / W1TC) */

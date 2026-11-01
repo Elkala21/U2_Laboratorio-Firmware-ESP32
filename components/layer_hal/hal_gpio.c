@@ -22,17 +22,20 @@ static const uint32_t io_mux_reg[GPIO_PIN_COUNT] = {
  * ======================================================================================================== */
 
 /* Bit of the pin inside its 32-bit register */
-static inline uint32_t pin_mask(uint8_t pin){
+static inline uint32_t pin_mask(uint8_t pin)
+{
     return 1UL << (pin % GPIO_BANK_SIZE);
 }
 
 /* Register of the pair the pin lives in: 0 for GPIO0..31, 1 for GPIO32..39 */
-static inline uint8_t pin_bank(uint8_t pin){
+static inline uint8_t pin_bank(uint8_t pin)
+{
     return pin / GPIO_BANK_SIZE;
 }
 
 /* IO_MUX holds several settings per pin, so only the requested bits may change; pin must be valid */
-static inline void io_mux_modify(uint8_t pin, uint32_t clear, uint32_t set){
+static inline void io_mux_modify(uint8_t pin, uint32_t clear, uint32_t set)
+{
     uint32_t addr   = io_mux_reg[pin];
     uint32_t v      = REG32(addr);
     v = v & ~clear;
@@ -40,10 +43,12 @@ static inline void io_mux_modify(uint8_t pin, uint32_t clear, uint32_t set){
     REG32(addr) = v;                        /* single write: no intermediate state on the pin */
 }
 
-static inline bool read_bit(uint8_t pin, uint32_t addr){
+/* Reads a specific bit in a register from a given pin; pin must be valid*/
+static inline bool read_bit(uint8_t pin, uint32_t addr)
+{
     uint32_t v = REG32(addr);
 
-    if ((v & pin_mask(pin)) == 0){          /* keep only this pin's bit out of the whole bank */
+    if ((v & pin_mask(pin)) == 0) {          /* keep only this pin's bit out of the whole bank */
         return false;
     }
 
@@ -56,11 +61,18 @@ static inline bool read_bit(uint8_t pin, uint32_t addr){
 
 /*-------------------------- Pin capabilities (hardware facts, no register access) -----------------------*/
 
-bool hal_gpio_is_valid(uint8_t pin){
+bool hal_gpio_is_valid(uint8_t pin)
+{
     return (pin < GPIO_PIN_COUNT) && (io_mux_reg[pin] != 0);    /* range first: never reads out of bounds */
 }
 
-bool hal_gpio_is_output_capable(uint8_t pin){
+bool hal_gpio_is_output_capable(uint8_t pin)
+{
+    return pin < GPIO_FIRST_INPUT_ONLY_PIN;
+}
+
+bool hal_gpio_has_pulls(uint8_t pin)
+{
     return pin < GPIO_FIRST_INPUT_ONLY_PIN;
 }
 
@@ -69,16 +81,23 @@ bool hal_gpio_is_output_capable(uint8_t pin){
  *                 MCU_SEL  | FUN_DRV | IE | WPU | WPD
  * -------------------------------------------------------------------------------------------------------- */
 
-void hal_gpio_select_func(uint8_t pin){
+void hal_gpio_select_func(uint8_t pin)
+{
     io_mux_modify(pin, IO_MUX_MCU_SEL_M, (IO_MUX_MCU_SEL_GPIO << IO_MUX_MCU_SEL_S));
 }
 
-void hal_gpio_set_input_enable(uint8_t pin, bool enable){
-    if(enable)  io_mux_modify(pin, IO_MUX_FUN_IE, IO_MUX_FUN_IE);
-    else        io_mux_modify(pin, IO_MUX_FUN_IE, 0);
+void hal_gpio_set_input_enable(uint8_t pin, bool enable)
+{
+    if (enable == true) {
+        io_mux_modify(pin, IO_MUX_FUN_IE, IO_MUX_FUN_IE);
+        return;
+    }
+
+    io_mux_modify(pin, IO_MUX_FUN_IE, 0);
 }
 
-void hal_gpio_set_pull(uint8_t pin, hal_gpio_pull_t pull){
+void hal_gpio_set_pull(uint8_t pin, hal_gpio_pull_t pull)
+{
     uint32_t set = 0;
 
     switch (pull){
@@ -98,11 +117,8 @@ void hal_gpio_set_pull(uint8_t pin, hal_gpio_pull_t pull){
     io_mux_modify(pin, (IO_MUX_FUN_WPD | IO_MUX_FUN_WPU), set);    /* both cleared so pulls never mix */
 }
 
-bool hal_gpio_has_pulls(uint8_t pin){
-    return pin < GPIO_FIRST_INPUT_ONLY_PIN;
-}
-
-bool hal_gpio_is_input_enabled(uint8_t pin){
+bool hal_gpio_is_input_enabled(uint8_t pin)
+{
     uint32_t v = REG32(io_mux_reg[pin]);
 
     if ((v & IO_MUX_FUN_IE) == 0) {
@@ -117,7 +133,8 @@ bool hal_gpio_is_input_enabled(uint8_t pin){
  *             OEN_INV_SEL | OEN_SEL | OUT_INV_SEL | OUT_SEL
  * -------------------------------------------------------------------------------------------------------- */
 
-void hal_gpio_route_simple_output(uint8_t pin){
+void hal_gpio_route_simple_output(uint8_t pin)
+{
     uint32_t v      = REG32(GPIO_FUNC_OUT_SEL_CFG_REG(pin));
     uint32_t clear  = GPIO_FUNC_OEN_INV_SEL | GPIO_FUNC_OEN_SEL | GPIO_FUNC_OUT_INV_SEL | GPIO_FUNC_OUT_SEL_M;
     uint32_t set    = GPIO_FUNC_OUT_SEL_GPIO << GPIO_FUNC_OUT_SEL_S;
@@ -128,8 +145,9 @@ void hal_gpio_route_simple_output(uint8_t pin){
     REG32(GPIO_FUNC_OUT_SEL_CFG_REG(pin)) = v;
 }
 
-void hal_gpio_set_output_enable(uint8_t pin, bool enable){
-    if (enable) {
+void hal_gpio_set_output_enable(uint8_t pin, bool enable)
+{
+    if (enable == true) {
         REG32(GPIO_ENABLE_W1TS_REG(pin_bank(pin))) = pin_mask(pin);
         return;
     }
@@ -137,15 +155,16 @@ void hal_gpio_set_output_enable(uint8_t pin, bool enable){
     REG32(GPIO_ENABLE_W1TC_REG(pin_bank(pin))) = pin_mask(pin);
 }
 
-
-bool hal_gpio_is_output_enabled(uint8_t pin){
+bool hal_gpio_is_output_enabled(uint8_t pin)
+{
     return read_bit(pin, GPIO_ENABLE_REG(pin_bank(pin)));
 }
 
 /* ----------------------------------------------- DATA --------------------------------------------------- */
 
-void hal_gpio_set_level(uint8_t pin, bool level){
-    if (level) {
+void hal_gpio_set_level(uint8_t pin, bool level)
+{
+    if (level == true) {
         REG32(GPIO_OUT_W1TS_REG(pin_bank(pin))) = pin_mask(pin);
         return;
     }
@@ -153,10 +172,12 @@ void hal_gpio_set_level(uint8_t pin, bool level){
     REG32(GPIO_OUT_W1TC_REG(pin_bank(pin))) = pin_mask(pin);
 }
 
-bool hal_gpio_get_level(uint8_t pin){
+bool hal_gpio_get_level(uint8_t pin)
+{
     return read_bit(pin, GPIO_IN_REG(pin_bank(pin)));
 }
 
-bool hal_gpio_get_output_level(uint8_t pin){
+bool hal_gpio_get_output_level(uint8_t pin)
+{
     return read_bit(pin, GPIO_OUT_REG(pin_bank(pin)));
 }
