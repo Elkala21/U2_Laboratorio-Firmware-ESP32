@@ -5,7 +5,7 @@
 #include <stdbool.h>
 
 /* Internal pull resistor options (IO_MUX FUN_WPU / FUN_WPD)*/
-typedef enum {HG_PULL_NONE, HG_PULL_UP, HG_PULL_DOWN }hal_gpio_pull_t;
+typedef enum {HAL_GPIO_PULL_NONE, HAL_GPIO_PULL_UP, HAL_GPIO_PULL_DOWN }hal_gpio_pull_t;
 
 
 /* ========================================================================================================
@@ -18,6 +18,9 @@ bool hal_gpio_is_valid(uint8_t pin);
 /* True if the pin has an output driver (false for GPIO 34..39) */
 bool hal_gpio_is_output_capable(uint8_t pin);
 
+/* True if the pin has internal pull-up/pull-down resistors (false for GPIO34 - GPIO39) */
+bool hal_gpio_has_pulls(uint8_t pin);
+
 /* --------------------------------------------- IO_MUX --------------------------------------------------- */
 
 /* Selects the GPIO function in IO_MUX (MCU_SEL = 2) */
@@ -29,6 +32,9 @@ void hal_gpio_set_input_enable(uint8_t pin, bool enable);
 /* Configures the internal pull resistor (FUN_WPU / FUN_WPD) */
 void hal_gpio_set_pull(uint8_t pin, hal_gpio_pull_t pull);
 
+/* True if the pin's input buffer is enabled (FUN_IE); pins may come out of reset with it on */
+bool hal_gpio_is_input_enabled(uint8_t pin);
+
 /* ------------------------------------------- GPIO_MATRIX ------------------------------------------------ */
 
 /* Routes the pin to GPIO_OUT / GPIO_ENABLE (OUT_SEL = 0x100, no inversion) */
@@ -36,6 +42,9 @@ void hal_gpio_route_simple_output(uint8_t pin);
 
 /* Enables/disables the output driver (GPIO_ENABLE[1]_W1TS / W1TC) */
 void hal_gpio_set_output_enable(uint8_t pin, bool enable);
+
+/* True if the pin's output driver is enabled (reads GPIO_ENABLE / GPIO_ENABLE1) */
+bool hal_gpio_is_output_enabled(uint8_t pin);
 
 /* ----------------------------------------------- DATA --------------------------------------------------- */
 
@@ -48,4 +57,4 @@ bool hal_gpio_get_level(uint8_t pin);
 /* Reads the level the pin is being driven to (GPIO_OUT / GPIO_OUT1) */
 bool hal_gpio_get_output_level(uint8_t pin);
 
-#endif
+#endif /* HAL_GPIO_H */
