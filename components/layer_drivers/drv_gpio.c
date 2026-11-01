@@ -17,6 +17,23 @@ static hal_gpio_pull_t to_hal_pull(drv_gpio_pull_t pull)
     return HAL_GPIO_PULL_NONE;
 }
 
+static fw_err_t write_validation(uint8_t pin){
+
+    if (hal_gpio_is_valid(pin) == false) {
+        return FW_ERR_INVALID_ARG;
+    }
+
+    if (hal_gpio_is_output_capable(pin) == false) {
+        return FW_ERR_NOT_SUPPORTED;
+    }
+
+    if (hal_gpio_is_output_enabled(pin) == false) {
+        return FW_ERR_INVALID_STATE;
+    }
+
+    return FW_OK;
+}
+
 /* ========================================================================================================
  * --------------------------------------- Public Functions in drv_gpio -----------------------------------
  * ======================================================================================================== */
@@ -72,16 +89,10 @@ fw_err_t drv_gpio_write(uint8_t pin, bool level)
 {
     /* =============================================== Guard Clauses ========================================== */
 
-    if (hal_gpio_is_valid(pin) == false) {
-        return FW_ERR_INVALID_ARG;
-    }
+    fw_err_t err = write_validation(pin);
 
-    if (hal_gpio_is_output_capable(pin) == false) {
-        return FW_ERR_NOT_SUPPORTED;
-    }
-
-    if (hal_gpio_is_output_enabled(pin) == false) {
-        return FW_ERR_INVALID_STATE;
+    if (err != FW_OK){
+        return err;
     }
 
     /* ================================================ Write in pin ========================================== */
@@ -117,6 +128,24 @@ fw_err_t drv_gpio_read(uint8_t pin, bool *level)
     }
 
     *level = hal_gpio_get_level(pin);
+
+    return FW_OK;
+}
+
+fw_err_t drv_gpio_toggle(uint8_t pin){
+    /* =============================================== Guard Clauses ========================================== */
+
+    fw_err_t err = write_validation(pin);
+
+    if (err != FW_OK){
+        return err;
+    }
+
+    /* ================================================ Write in pin ========================================== */
+
+    bool level = hal_gpio_get_output_level(pin);
+
+    hal_gpio_set_level(pin, !level);
 
     return FW_OK;
 }
