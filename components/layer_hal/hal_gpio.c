@@ -102,6 +102,16 @@ bool hal_gpio_has_pulls(uint8_t pin){
     return pin < GPIO_FIRST_INPUT_ONLY_PIN;
 }
 
+bool hal_gpio_is_input_enabled(uint8_t pin){
+    uint32_t v = REG32(io_mux_reg[pin]);
+
+    if ((v & IO_MUX_FUN_IE) == 0) {
+        return false;
+    }
+
+    return true;
+}
+
 /* ------------------------------------------- GPIO_MATRIX ------------------------------------------------
  *      bit:       11      |    10   |      9      |   8 ... 0     (TRM v4.6, Register 4.32)
  *             OEN_INV_SEL | OEN_SEL | OUT_INV_SEL | OUT_SEL

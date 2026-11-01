@@ -32,6 +32,9 @@ void hal_gpio_set_input_enable(uint8_t pin, bool enable);
 /* Configures the internal pull resistor (FUN_WPU / FUN_WPD) */
 void hal_gpio_set_pull(uint8_t pin, hal_gpio_pull_t pull);
 
+/* True if the pin's input buffer is enabled (FUN_IE); pins may come out of reset with it on */
+bool hal_gpio_is_input_enabled(uint8_t pin);
+
 /* ------------------------------------------- GPIO_MATRIX ------------------------------------------------ */
 
 /* Routes the pin to GPIO_OUT / GPIO_ENABLE (OUT_SEL = 0x100, no inversion) */

@@ -29,7 +29,7 @@ fw_err_t drv_gpio_config(uint8_t pin, const drv_gpio_config_t *config)
         return FW_ERR_INVALID_ARG;
     }
 
-    if (!hal_gpio_is_valid(pin)) {
+    if (hal_gpio_is_valid(pin) == false) {
         return FW_ERR_INVALID_ARG;
     }
 
@@ -72,21 +72,51 @@ fw_err_t drv_gpio_write(uint8_t pin, bool level)
 {
     /* =============================================== Guard Clauses ========================================== */
 
-    if (!hal_gpio_is_valid(pin)) {
+    if (hal_gpio_is_valid(pin) == false) {
         return FW_ERR_INVALID_ARG;
     }
 
-    if (!hal_gpio_is_output_capable(pin)) {
+    if (hal_gpio_is_output_capable(pin) == false) {
         return FW_ERR_NOT_SUPPORTED;
     }
 
-    if (!hal_gpio_is_output_enabled(pin)) {
+    if (hal_gpio_is_output_enabled(pin) == false) {
         return FW_ERR_INVALID_STATE;
     }
 
     /* ================================================ Write in pin ========================================== */
 
     hal_gpio_set_level(pin, level);
+
+    return FW_OK;
+}
+
+fw_err_t drv_gpio_read(uint8_t pin, bool *level)
+{
+    /* =============================================== Guard Clauses ========================================== */
+
+    if (level == NULL){
+        return FW_ERR_INVALID_ARG;
+    }
+
+    if (!hal_gpio_is_valid(pin)) {
+        return FW_ERR_INVALID_ARG;
+    }
+
+    bool outputState = hal_gpio_is_output_enabled(pin);
+
+    if ((hal_gpio_is_input_enabled(pin) == false) && (outputState == false)) {
+        return FW_ERR_INVALID_STATE;
+    }
+
+    /* ================================================ Write in pin ========================================== */
+
+    if (outputState == true) {
+        *level = hal_gpio_get_output_level(pin);
+        return FW_OK;
+    }
+
+    *level = hal_gpio_get_level(pin);
 
     return FW_OK;
 }
