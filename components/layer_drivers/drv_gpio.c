@@ -67,3 +67,26 @@ fw_err_t drv_gpio_config(uint8_t pin, const drv_gpio_config_t *config)
 
     return FW_OK;
 }
+
+fw_err_t drv_gpio_write(uint8_t pin, bool level)
+{
+    /* =============================================== Guard Clauses ========================================== */
+
+    if (!hal_gpio_is_valid(pin)) {
+        return FW_ERR_INVALID_ARG;
+    }
+
+    if (!hal_gpio_is_output_capable(pin)) {
+        return FW_ERR_NOT_SUPPORTED;
+    }
+
+    if (!hal_gpio_is_output_enabled(pin)) {
+        return FW_ERR_INVALID_STATE;
+    }
+
+    /* ================================================ Write in pin ========================================== */
+
+    hal_gpio_set_level(pin, level);
+
+    return FW_OK;
+}

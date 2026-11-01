@@ -37,7 +37,17 @@ static inline void io_mux_modify(uint8_t pin, uint32_t clear, uint32_t set){
     uint32_t v      = REG32(addr);
     v = v & ~clear;
     v = v | set;
-    REG32(addr)     = v;                        /* single write: no intermediate state on the pin */
+    REG32(addr) = v;                        /* single write: no intermediate state on the pin */
+}
+
+static inline bool read_bit(uint8_t pin, uint32_t addr){
+    uint32_t v = REG32(addr);
+
+    if ((v & pin_mask(pin)) == 0){          /* keep only this pin's bit out of the whole bank */
+        return false;
+    }
+
+    return true;
 }
 
 /* ========================================================================================================
@@ -117,6 +127,11 @@ void hal_gpio_set_output_enable(uint8_t pin, bool enable){
     REG32(GPIO_ENABLE_W1TC_REG(pin_bank(pin))) = pin_mask(pin);
 }
 
+
+bool hal_gpio_is_output_enabled(uint8_t pin){
+    return read_bit(pin, GPIO_ENABLE_REG(pin_bank(pin)));
+}
+
 /* ----------------------------------------------- DATA --------------------------------------------------- */
 
 void hal_gpio_set_level(uint8_t pin, bool level){
@@ -129,21 +144,9 @@ void hal_gpio_set_level(uint8_t pin, bool level){
 }
 
 bool hal_gpio_get_level(uint8_t pin){
-    uint32_t v = REG32(GPIO_IN_REG(pin_bank(pin)));
-
-    if ((pin_mask(pin) & v) == 0) {               /* keep only this pin's bit out of the whole bank */
-        return false;
-    }
-
-    return true;
+    return read_bit(pin, GPIO_IN_REG(pin_bank(pin)));
 }
 
 bool hal_gpio_get_output_level(uint8_t pin){
-    uint32_t v = REG32(GPIO_OUT_REG(pin_bank(pin)));
-
-    if ((pin_mask(pin) & v) == 0) {               /* keep only this pin's bit out of the whole bank */
-        return false;
-    }
-
-    return true;
+    return read_bit(pin, GPIO_OUT_REG(pin_bank(pin)));
 }
