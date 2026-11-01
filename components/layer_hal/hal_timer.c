@@ -131,6 +131,30 @@ void hal_master_timer_get_time_us(uint64_t*time_read_ptr_out){
     hal_timer_get_time_us(G0, T1, time_read_ptr_out);
 }
 
-void hal_delay_ticks(uint64_t delay_ticks){
+void hal_delay_us_ticks(uint64_t delay_us_ticks){
+    //Revisar en que parte del timer iniciamos la cuenta para el delay
+    uint64_t count_start_point = 0;
+    hal_timer_get_time_us(G0,T1, &count_start_point); //Obtener el tiempo del timer general al que se inicio el delay.
+
+    //Variable a cambiar para ir revisando el tiempo transcurrido durante el delay
+    uint64_t current_time = count_start_point;
+
+    //Variable que revisa el último tiempo en el que el WDT se alimentó
+    uint64_t last_wdt_feed = count_start_point;
+
+    while(delay_us_ticks > (current_time - count_start_point)){
+        hal_timer_get_time_us(G0,T1, &current_time);
+        if(current_time-last_wdt_feed >= 20000){
+            last_wdt_feed = current_time;
+            hal_wdt_feed(G0);
+        }
+    }
+}
+
+void hal_delay_ms_ticks(uint64_t delay_ms){
     
+}
+
+void hal_delay_s_ticks(uint64_t delay_s_ticks){
+
 }
