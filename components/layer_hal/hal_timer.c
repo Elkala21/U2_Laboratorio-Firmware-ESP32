@@ -4,7 +4,6 @@
 TO-DO LIST:
 URG|IMP
 - Bloquear un timer para conteo general.
-- Añadir función de delay/wait.
 - Reconfigurar el como se reservan las ISRs de los timers para evitar uso del timer general. 
 (Solo permitir al usuario configurar este timer directamente con HAL)
 
@@ -152,9 +151,17 @@ void hal_delay_us_ticks(uint64_t delay_us_ticks){
 }
 
 void hal_delay_ms_ticks(uint64_t delay_ms){
-    
+    uint64_t current_ms = 0;
+    while(current_ms < delay_ms){
+        hal_delay_us_ticks(1000);
+        current_ms++;
+    }
 }
 
 void hal_delay_s_ticks(uint64_t delay_s_ticks){
-
+    uint64_t current_secs = 0;
+    while(current_secs < delay_s_ticks){
+        hal_delay_ms_ticks(1000);
+        current_secs++;
+    }
 }
