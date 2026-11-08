@@ -40,6 +40,8 @@ void drv_configure_timer(hal_avail_timers_e selected_timer, uint64_t time_us, ha
     avail_timer_inGroups_e_t timer = 0; 
     sort_group_and_timer (selected_timer, &group, &timer);
 
+    saved_reset_times[selected_timer] = time_us;
+
     //
     timer_config_t config_struct ={
         .timer_ticks = time_us,
