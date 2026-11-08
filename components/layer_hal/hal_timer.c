@@ -114,6 +114,7 @@ void hal_timer_configure(avail_timer_groups_e_t timer_group, avail_timer_inGroup
 
     //Reservar el puntero a la función de interrupción del timer correspondiente al grupo y timer seleccionados.
     esp_intr_alloc(config_struct.intr_source, ESP_INTR_FLAG_IRAM, selected_timer_isr[timer_group][timer_sel], NULL, config_struct.free_handle);
+    timer_callback_gt[timer_group][timer_sel] = config_struct.callback_func;
 }
 
 
