@@ -32,7 +32,7 @@ static void sort_group_and_timer(hal_avail_timers_e selected_timer, avail_timer_
     *timer_ptr_out = ((selected_timer == TIMER1 || selected_timer == TIMER3)? T0 : T1);
 }
 
-void drv_configure_timer(hal_avail_timers_e selected_timer, uint64_t time_us, hal_autoreload_e autoreload_enable, timer_callback_t app_main_int_func){
+void drv_configure_timer(hal_avail_timers_e selected_timer, uint64_t time_us, hal_autoreload_e autoreload_enable, timer_callback_t app_main_intr_func){
     
     avail_timer_groups_e_t group = 0;
     avail_timer_inGroups_e_t timer = 0; 
@@ -43,7 +43,7 @@ void drv_configure_timer(hal_avail_timers_e selected_timer, uint64_t time_us, ha
         .timer_ticks = time_us,
         .autoreload = autoreload_enable,
         .divider = TICK_US_DIVIDER, //Escala de us por defecto
-        .callback_func = app_main_int_func,
+        .callback_func = app_main_intr_func,
         .free_handle = &timer_free_handles[selected_timer]
     };
     hal_timer_configure(group, timer, config_struct);
