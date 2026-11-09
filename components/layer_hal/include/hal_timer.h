@@ -13,6 +13,7 @@ typedef struct {
     uint64_t timer_ticks;
     uint32_t autoreload; //Revisar si realmente es necesario que sea de 32 bits.
     uint16_t divider; //Reloj resultante = 80MHz/divider
+    bool ascending_count;
     uint32_t intr_source; //Establecer el tipo de interrupcion para LEVEL (Llamada CTE a ISR si no se desactiva) y EDGE (Llamada única que debe desactivarse para llamarse nuevamente)
     //intr_handler_t timer_isr; //Revisar el tipo de dato que debería tener el puntero a función.
     timer_callback_t callback_func; //Puntero a función de callback.
@@ -32,3 +33,5 @@ void hal_timer_restart(avail_timer_groups_e_t, avail_timer_inGroups_e_t, uint64_
 void hal_timer_reset(avail_timer_groups_e_t, avail_timer_inGroups_e_t, uint64_t);
 
 void hal_timer_configure(avail_timer_groups_e_t, avail_timer_inGroups_e_t, timer_config_t);
+
+void hal_timer_get_time_us(avail_timer_groups_e_t, avail_timer_inGroups_e_t, uint64_t*);
